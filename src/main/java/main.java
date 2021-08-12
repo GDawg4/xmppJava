@@ -10,6 +10,9 @@ import org.jivesoftware.smackx.search.UserSearch;
 import org.jivesoftware.smackx.search.UserSearchManager;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smack.ChatManager;
+import org.jivesoftware.smack.AccountManager;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -31,7 +34,6 @@ class Main{
     static boolean sendMessage(XMPPConnection con, String user, String message){
         ChatManager c = con.getChatManager();
         Chat chat = c.createChat(user, null);
-        registerAccount(con);
         c.addChatListener(new ChatManagerListener() {
             @Override
             public void chatCreated(Chat chat, boolean create) {
@@ -81,11 +83,11 @@ class Main{
             System.out.println(e.toString());
         }
     }
-    static void registerAccount(XMPPConnection connection){
+    static void registerAccount(XMPPConnection connection, String userName, String password){
         AccountManager accountManager = new AccountManager(connection);
         try{
-            accountManager.createAccount("rodrigoRemote2", "redes");
-            System.out.println("success");
+            accountManager.createAccount(userName, password);
+            System.out.println("Usuario creado exitosamente");
         }catch (XMPPException e1){
             System.out.println(e1.toString());
         }
@@ -98,7 +100,6 @@ class Main{
             return false;
         }
     }
-
     static boolean showAllUsers(XMPPConnection con){
         Roster roster = con.getRoster();
         Collection<RosterEntry> entries = roster.getEntries();
@@ -107,7 +108,6 @@ class Main{
         }
         return true;
     }
-
     static boolean addToRoster(XMPPConnection con, String userName, String alias){
         Roster roster = con.getRoster();
         String[] groups = {"Friends"};
@@ -116,6 +116,16 @@ class Main{
             return true;
         }catch (Exception e){
             System.out.println("Roster error");
+            System.out.println(e.toString());
+            return false;
+        }
+    }
+    static boolean deleteAccount(XMPPConnection con){
+        AccountManager accountManager = con.getAccountManager();
+        try{
+            accountManager.deleteAccount();
+            return true;
+        }catch (Exception e){
             System.out.println(e.toString());
             return false;
         }
@@ -140,10 +150,13 @@ class Main{
                         input = myObj.nextLine();
                         switch (input) {
                             case "1":
+                                System.out.println("Ingrese el nuevo nombre de usuario");
                                 Scanner userNameScanner = new Scanner(System.in);
                                 String userNameInput = userNameScanner.nextLine();
+                                System.out.println("Ingrese la nueva contraseña");
                                 Scanner passwordScanner = new Scanner(System.in);
                                 String passwordInput = passwordScanner.nextLine();
+                                registerAccount(con, userNameInput, passwordInput);
                                 break;
                             case "2":
                                 System.out.println("Ingrese su nombre de usuario");
@@ -163,6 +176,24 @@ class Main{
                     } while (!input.equals("3"));
 
                 } else {
+                    ChatManager chatManager = con.getChatManager();
+                    Thread newThread = new Thread(() -> {
+                        chatManager.addChatListener(
+                                new ChatManagerListener() {
+                                    @Override
+                                    public void chatCreated(Chat chat, boolean createdLocally) {
+                                        chat.addMessageListener(new MessageListener() {
+                                            public void processMessage(Chat chat, Message msg) {
+                                                if(msg.getBody() != null){
+                                                    System.out.println(chat.getParticipant() + ":" + msg.getBody());
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                        );
+                    });
+                    newThread.start();
                     do {
                         System.out.println("Opciones:");
                         System.out.println("1. Mostrar todos los usuarios");
@@ -196,7 +227,7 @@ class Main{
                                 System.out.println("Ingrese el nombre de usuario a agregar (usuario@dominio.xyz)");
                                 Scanner userMessageScanner = new Scanner(System.in);
                                 String userMessage = userMessageScanner.nextLine();
-                                System.out.println("Ingrese el alias del usuario");
+                                System.out.println("Ingrese el mensaje del usuario");
                                 Scanner messageScanner = new Scanner(System.in);
                                 String message = messageScanner.nextLine();
                                 if (sendMessage(con, userMessage, message)){
@@ -204,6 +235,8 @@ class Main{
                                 }else{
                                     System.out.println("Error, favor intentar nuevamente");
                                 }
+                            case "5":
+                                System.out.println("Sout");
                         }
                     } while (!loggedInInput.equals("6"));
                 }
