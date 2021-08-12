@@ -11,4 +11,4 @@ XMPP client implementation donde in Java with the [Smack](https://search.maven.o
 1. Group chats
 
 ## Demonstration
-A demonstration can be seen [here](https://youtu.be/ggouJ9l9bpQ).
+A demonstration can be seen [here](https://youtu.be/g7FFVWGa2oA).
