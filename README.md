@@ -9,3 +9,6 @@ XMPP client implementation donde in Java with the [Smack](https://search.maven.o
 1. Add contacts
 1. One on one chat
 1. Group chats
+
+## Demonstration
+A demonstration can be seen [here] (https://youtu.be/ggouJ9l9bpQ).
