@@ -247,9 +247,7 @@ class Main{
                         System.out.println("Opciones:");
                         System.out.println("1. Mostrar todos los usuarios");
                         System.out.println("2. Agregar un contacto");
-                        System.out.println("3. Mostrar detalles");
                         System.out.println("4. Comunicación 1 a 1");
-                        System.out.println("5. Comunicación grupal");
                         System.out.println("6. Eliminar cuenta");
                         System.out.println("7. Salir");
                         System.out.println("Ingrese su opción");
